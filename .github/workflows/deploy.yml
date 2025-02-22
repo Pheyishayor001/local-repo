@@ -50,14 +50,14 @@ jobs:
           sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
           sudo docker stop fastapi-app || true
           sudo docker rm fastapi-app || true
-          sudo docker run -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+          sudo docker run --env-file ${{ secrets.DOT_ENV }} -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
           EOF
 
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SSH_HOST_2 }} << 'EOF'
           sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
           sudo docker stop fastapi-app || true
           sudo docker rm fastapi-app || true
-          sudo docker run -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+          sudo docker run --env-file ${{ secrets.DOT_ENV }} -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
           EOF
 
           
