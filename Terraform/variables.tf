@@ -26,7 +26,7 @@ variable "private_subnet_cidrs" {
   type        = list(string)
   description = "Private Subnet CIDR values"
   #Using two CIDR block to enable AWS create a replica of the Db in another AZ
-  default     = [] 
+  default = []
 }
 
 #EC2 Instance variables
@@ -38,42 +38,90 @@ variable "ssh_file" {
 
 variable "AMI" {
   description = "AMI"
-  default     = "" 
+  default     = ""
 }
 
 variable "instance_type" {
   description = "Instance type"
-  default = ""
+  default     = ""
 }
 
 variable "root_volume_size" {
   type    = number
-  default =  8
+  default = 8
 }
 
 
 ### DB VARIABLES
 variable "db_engine" {
   description = "db engine"
-  default = ""
+  default     = ""
 }
 variable "db_instance_class" {
   description = "db instance class"
-  default = ""
+  default     = ""
 }
 variable "db_storage" {
   description = "db storage"
-  default =  8
+  default     = 8
 }
 variable "db_user" {
   description = "db user"
-  default = ""
+  default     = ""
 }
 variable "db_password" {
   description = "db pasword"
-  default = ""
+  default     = ""
 }
 variable "db_name" {
   description = "db name"
-  default = ""
+  default     = ""
+}
+
+# Autoscaling variables
+#launch template vars
+variable "name_prefix_launch_tem" {
+  description = "name_prefix"
+  default     = "auto_scale-"
+}
+
+#auto scaling group
+variable "name_prefix_asg" {
+  description = "name_prefix"
+  default     = "app_ASG-"
+}
+
+variable "max_size" {
+  type    = number
+  default = 3
+}
+
+variable "min_size" {
+  type    = number
+  default = 1
+}
+
+variable "desired_cap" {
+  type    = number
+  default = 1
+}
+
+variable "scale_up_by" {
+  type    = number
+  default = 1
+}
+
+variable "scale_down_by" {
+  type    = number
+  default = -1
+}
+
+variable "high_thresh" {
+  type    = number
+  default = 70
+}
+
+variable "low_thresh" {
+  type    = number
+  default = 30
 }

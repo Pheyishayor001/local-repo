@@ -1,6 +1,6 @@
 resource "aws_launch_template" "auto_scale" {
-  name_prefix   = "auto_scale-"
-  image_id      = var.AMI  # Uses same AMI as default ec2
+  name_prefix   = var.name_prefix_launch_tem
+  image_id      = var.AMI           # Uses same AMI as default ec2
   instance_type = var.instance_type #same instance type
 
   network_interfaces {
@@ -18,7 +18,7 @@ resource "aws_autoscaling_group" "app_ASG" {
   max_size            = 3
   min_size            = 1
   desired_capacity    = 1
-  vpc_zone_identifier = aws_subnet.public_subnet[*].id  # List of subnet IDs
+  vpc_zone_identifier = aws_subnet.public_subnet[*].id # List of subnet IDs
 
   launch_template {
     id      = aws_launch_template.auto_scale.id

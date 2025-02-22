@@ -14,7 +14,7 @@ resource "aws_lb_target_group" "app_tg" {
   name     = "feyi-app-target-group"
   port     = 8000
   protocol = "HTTP"
-  vpc_id      = aws_vpc.main.id
+  vpc_id   = aws_vpc.main.id
 
   health_check {
     path                = "/health"
@@ -28,9 +28,9 @@ resource "aws_lb_target_group" "app_tg" {
 # Register EC2 Instances to the Target Group
 resource "aws_lb_target_group_attachment" "public_instance_attach" {
   target_group_arn = aws_lb_target_group.app_tg.arn #attaching the Amazon Resource Name
-  count         = length(var.public_subnet_cidrs)
+  count            = length(var.public_subnet_cidrs)
 
-  target_id        = aws_instance.public_instance[count.index].id
+  target_id = aws_instance.public_instance[count.index].id
 }
 
 # Create the Listener (Routes traffic to Target Group)

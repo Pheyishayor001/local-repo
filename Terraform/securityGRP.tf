@@ -8,7 +8,7 @@ resource "aws_security_group" "alb_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] 
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -59,7 +59,7 @@ resource "aws_security_group" "ec2_Public_SG" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  ingress { 
+  ingress {
     from_port   = -1
     to_port     = -1
     protocol    = "ICMP" # Allow ping
@@ -97,7 +97,7 @@ resource "aws_security_group" "db_Private_SG" {
     protocol    = "tcp"
     cidr_blocks = var.public_subnet_cidrs
   }
-  ingress { 
+  ingress {
     from_port   = -1
     to_port     = -1
     protocol    = "ICMP" # Allow ping

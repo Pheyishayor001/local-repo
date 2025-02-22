@@ -50,7 +50,7 @@ resource "aws_subnet" "public_subnet" {
 #give nat gateway elastic IP to enable outbound traffic.
 resource "aws_eip" "elastic_IP" {
   # this just needs to be created no need for an argument the VPC argument
-  
+
   count = length(var.private_subnet_cidrs)
 }
 
@@ -74,7 +74,7 @@ resource "aws_route_table" "private_rt" {
   count  = length(var.public_subnet_cidrs)
 
   route {
-    cidr_block = "0.0.0.0/0" # Allow outbound access to all IPs
+    cidr_block     = "0.0.0.0/0" # Allow outbound access to all IPs
     nat_gateway_id = aws_nat_gateway.demo-nat-gateway[count.index].id
   }
 
@@ -98,7 +98,7 @@ resource "aws_subnet" "private_subnet" {
   }
 }
 resource "aws_db_subnet_group" "postgres_db_subnet_group" {
-  name       = "postgres-db-subnet-group"
-  subnet_ids = aws_subnet.private_subnet[*].id  
+  name        = "postgres-db-subnet-group"
+  subnet_ids  = aws_subnet.private_subnet[*].id
   description = "Private Subnet Group for PostgreSQL"
 }
