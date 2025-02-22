@@ -18,7 +18,7 @@ jobs:
 
       - name: Build Docker images
         run: | #tagging with the current run_number to keep track  of each image per commit, to ease roll back in case of a failed deployment.
-          docker build -t quotes-app:${{ github.run_number }} .
+          docker build -t quotes-app:latest .
 
       - name: "Tag Docker Images"
         run: |
