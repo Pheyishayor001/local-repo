@@ -1,14 +1,17 @@
 name: deploy
 
 on:
-  workflow_dispatch:
+  # workflow_dispatch:
+    push:
+      branches:
+        - solution
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
