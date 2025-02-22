@@ -17,7 +17,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build Docker images
-        run: | 
+        run: | #
           docker build -t quotes-app:latest .
 
       - name: "Tag Docker Images"
