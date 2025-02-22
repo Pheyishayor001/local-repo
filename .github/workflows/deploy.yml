@@ -17,7 +17,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build Docker images
-        run: | #
+        run: | 
           docker build -t quotes-app:latest .
 
       - name: "Tag Docker Images"
@@ -53,20 +53,20 @@ jobs:
           
           #the shell script below loops over the number of IP adresses provided in the secrets.SSH_HOST and deploys the applicaiton
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SSH_HOST_1 }} << 'EOF'
-          sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
-          sudo docker stop fastapi-app || true
-          sudo docker rm fastapi-app || true
-          sudo docker run --env-file /home/ubuntu/.env -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+          sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
+          sudo docker stop quotes-app || true
+          sudo docker rm quotes-app || true
+          sudo docker run --env-file /home/ubuntu/.env -d --name quotes-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
           EOF
 
           # Transfer .env file to SSH_HOST_2
           scp -o StrictHostKeyChecking=no .env ubuntu@${{ secrets.SSH_HOST_2 }}:/home/ubuntu/.env
 
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SSH_HOST_2 }} << 'EOF'
-          sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
-          sudo docker stop fastapi-app || true
-          sudo docker rm fastapi-app || true          
-          sudo docker run --env-file /home/ubuntu/.env -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+          sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
+          sudo docker stop quotes-app || true
+          sudo docker rm quotes-app || true          
+          sudo docker run --env-file /home/ubuntu/.env -d --name quotes-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
           EOF
 
           
