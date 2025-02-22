@@ -43,21 +43,30 @@ jobs:
       - name: Add SSH known hosts 
         run: |
          ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+         echo "${{ secrets.DOT_ENV }}" > .env
 
       - name: Deploy to Dev server
-        run: | #the shell script below loops over the number of IP adresses provided in the secrets.SSH_HOST and deploys the applicaiton
+        
+        run: | 
+          # Transfer .env file to SSH_HOST_1
+          scp -o StrictHostKeyChecking=no .env ubuntu@${{ secrets.SSH_HOST_1 }}:/home/ubuntu/.env
+          
+          #the shell script below loops over the number of IP adresses provided in the secrets.SSH_HOST and deploys the applicaiton
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SSH_HOST_1 }} << 'EOF'
           sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
           sudo docker stop fastapi-app || true
           sudo docker rm fastapi-app || true
-          sudo docker run --env-file ${{ secrets.DOT_ENV }} -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+          sudo docker run --env-file .env -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
           EOF
+
+          # Transfer .env file to SSH_HOST_2
+          scp -o StrictHostKeyChecking=no .env ubuntu@${{ secrets.SSH_HOST_2 }}:/home/ubuntu/.env
 
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SSH_HOST_2 }} << 'EOF'
           sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
           sudo docker stop fastapi-app || true
-          sudo docker rm fastapi-app || true
-          sudo docker run --env-file ${{ secrets.DOT_ENV }} -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+          sudo docker rm fastapi-app || true          
+          sudo docker run --env-file .env -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
           EOF
 
           
