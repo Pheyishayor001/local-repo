@@ -46,13 +46,18 @@ jobs:
 
       - name: Deploy to Dev server
         run: | #the shell script below loops over the number of IP adresses provided in the secrets.SSH_HOST and deploys the applicaiton
-          for host in $(echo "${{ secrets.SSH_HOST }}" | tr ',' ' '); do
-          echo "Deploying to $host"
-          ssh -o StrictHostKeyChecking=no ubuntu@$host <<EOF
-          sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:${{ github.run_number }}
-          sudo docker stop quotes-app || true
-          sudo docker rm quotes-app || true
-          sudo docker run --env-file ${{ secrets.DOT_ENV }} -d --name quotes-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:${{ github.run_number }}
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.SSH_HOST_1 }} << 'EOF'
+          sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+          sudo docker stop fastapi-app || true
+          sudo docker rm fastapi-app || true
+          sudo docker run -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
           EOF
-          done
+
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.SSH_HOST_2 }} << 'EOF'
+          sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+          sudo docker stop fastapi-app || true
+          sudo docker rm fastapi-app || true
+          sudo docker run -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+          EOF
+
           
