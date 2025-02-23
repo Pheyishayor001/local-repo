@@ -1,10 +1,10 @@
 name: deploy
 
 on:
-  workflow_dispatch:
-    # push:
-    #   branches:
-    #     - solution
+  # workflow_dispatch:
+    push:
+      branches:
+        - solution
 
 jobs:
   deploy:
