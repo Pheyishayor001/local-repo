@@ -56,8 +56,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ubuntu@$first_server << 'EOF'
             sudo docker pull ${DOCKER_HUB_USERNAME}/fastapi-app:latest
             sudo docker stop fastapi-app || true
-            sudo docker rm fastapi-app || true
-            sudo docker kill \$(sudo docker ps -q --filter "publish=8000") || true
+            sudo docker rm -f fastapi-app || true            
             sudo docker run --env-file /home/ubuntu/.env -d --name fastapi-app -p 8000:8000 ${DOCKER_HUB_USERNAME}/fastapi-app:latest
             EOF
       
@@ -71,8 +70,7 @@ jobs:
             ssh -o StrictHostKeyChecking=no ubuntu@$second_server << 'EOF'
               sudo docker pull ${DOCKER_HUB_USERNAME}/fastapi-app:latest
               sudo docker stop fastapi-app || true
-              sudo docker rm fastapi-app || true
-              sudo docker kill \$(sudo docker ps -q --filter "publish=8000") || true
+              sudo docker rm -f fastapi-app || true              
               sudo docker run --env-file /home/ubuntu/.env -d --name fastapi-app -p 8000:8000 ${DOCKER_HUB_USERNAME}/fastapi-app:latest
               EOF
           else
