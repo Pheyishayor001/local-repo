@@ -49,17 +49,7 @@ jobs:
       - name: Deploy to Dev server
         
         run: | 
-          # Transfer .env file to SSH_HOST_1
-          # scp -o StrictHostKeyChecking=no .env ubuntu@${{ secrets.SSH_HOST_1 }}:/home/ubuntu/.env
-          
-          #the shell script below loops over the number of IP adresses provided in the secrets.SSH_HOST and deploys the applicaiton
-          # ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SSH_HOST_1 }} << 'EOF'
-          # sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
-          # sudo docker stop quotes-app || true
-          # sudo docker rm quotes-app || true
-          # sudo docker run --env-file /home/ubuntu/.env -d --name quotes-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
-          # EOF
-
+          # loop over the string of IP addresses
           for host in $(echo "${{ secrets.SSH_HOST }}" | tr ',' ' '); do
           # copy .env file to servers
           scp -o StrictHostKeyChecking=no .env ubuntu@$host:/home/ubuntu/.env
