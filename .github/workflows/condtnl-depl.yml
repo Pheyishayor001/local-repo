@@ -53,7 +53,7 @@ jobs:
           second_server="${IPs[1]}"
       
           echo "Deploying to first server: $first_server"
-          ssh -o StrictHostKeyChecking=no ubuntu@$first_server <<EOF
+          ssh -o StrictHostKeyChecking=no ubuntu@$first_server << 'EOF'
             sudo docker pull ${DOCKER_HUB_USERNAME}/fastapi-app:latest
             sudo docker stop fastapi-app || true
             sudo docker rm fastapi-app || true
@@ -68,7 +68,7 @@ jobs:
           if curl -f http://$first_server:8000/health; then
             echo "Health check passed! Proceeding to second server: $second_server"
             
-            ssh -o StrictHostKeyChecking=no ubuntu@$second_server <<EOF
+            ssh -o StrictHostKeyChecking=no ubuntu@$second_server << 'EOF'
               sudo docker pull ${DOCKER_HUB_USERNAME}/fastapi-app:latest
               sudo docker stop fastapi-app || true
               sudo docker rm fastapi-app || true
