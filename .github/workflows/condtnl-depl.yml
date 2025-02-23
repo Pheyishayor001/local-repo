@@ -47,7 +47,7 @@ jobs:
 
       - name: Deploy to Dev server procedurally        
         run: |
-          IFS=',' read -r -a IPs <<< "${{ secrets.IP }}"  # Split IPs into an array
+          IFS=',' read -r -a IPs <<< "${{ secrets.SSH_HOST }}"  # Split IPs into an array
       
           first_server="${IPs[0]}"
           second_server="${IPs[1]}"
