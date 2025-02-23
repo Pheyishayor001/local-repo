@@ -57,6 +57,7 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
             sudo docker stop fastapi-app || true
             sudo docker rm fastapi-app || true
+            sudo docker kill $(sudo docker ps -q --filter "publish=8000") || true
             sudo docker run --env-file /home/ubuntu/.env -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
           EOF
       
@@ -71,6 +72,7 @@ jobs:
               sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
               sudo docker stop fastapi-app || true
               sudo docker rm fastapi-app || true
+              sudo docker kill $(sudo docker ps -q --filter "publish=8000") || true
               sudo docker run --env-file /home/ubuntu/.env -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
             EOF
           else
