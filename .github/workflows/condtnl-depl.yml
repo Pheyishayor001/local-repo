@@ -55,8 +55,8 @@ jobs:
           echo "Deploying to first server: $first_server"
           ssh -o StrictHostKeyChecking=no ubuntu@$first_server << 'EOF'
             sudo docker pull ${DOCKER_HUB_USERNAME}/quotes-app:latest
-            sudo docker stop fastapi-app || true
-            sudo docker rm -f fastapi-app || true            
+            sudo docker stop quotes-app || true
+            sudo docker rm -f quotes-app || true            
             sudo docker run --env-file /home/ubuntu/.env -d --name quotes-app -p 8000:8000 ${DOCKER_HUB_USERNAME}/quotes-app:latest
           EOF
       
@@ -69,8 +69,8 @@ jobs:
             
             ssh -o StrictHostKeyChecking=no ubuntu@$second_server << 'EOF'
               sudo docker pull ${DOCKER_HUB_USERNAME}/quotes-app:latest
-              sudo docker stop fastapi-app || true
-              sudo docker rm -f fastapi-app || true              
+              sudo docker stop quotes-app || true
+              sudo docker rm -f quotes-app || true              
               sudo docker run --env-file /home/ubuntu/.env -d --name quotes-app -p 8000:8000 ${DOCKER_HUB_USERNAME}/quotes-app:latest
             EOF
           else
