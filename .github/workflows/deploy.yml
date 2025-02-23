@@ -2,9 +2,9 @@ name: deploy
 
 on:
   # workflow_dispatch:
-    push:
-      branches:
-        - solution
+    # push:
+    #   branches:
+    #     - solution
 
 jobs:
   deploy:
