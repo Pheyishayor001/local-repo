@@ -2,9 +2,9 @@ name: deploy
 
 on:
   # workflow_dispatch:
-    # push:
-    #   branches:
-    #     - solution
+    push:
+      branches:
+        - solution
 
 jobs:
   deploy:
@@ -48,11 +48,14 @@ jobs:
       - name: Deploy to Dev server
         
         run: | 
+          # split the IP  at the , and store them into var: IPs.
+          IPs=(${${{ secrets.IP//,/ }}})
+
           # Transfer .env file to SSH_HOST_1
-          scp -o StrictHostKeyChecking=no .env ubuntu@${{ secrets.SSH_HOST_1 }}:/home/ubuntu/.env
+          scp -o StrictHostKeyChecking=no .env ubuntu@${IPs[0]}:/home/ubuntu/.env
           
           #the shell script below loops over the number of IP adresses provided in the secrets.SSH_HOST and deploys the applicaiton
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SSH_HOST_1 }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ubuntu@${IPs[0]} << 'EOF'
           sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
           sudo docker stop quotes-app || true
           sudo docker rm quotes-app || true
@@ -60,9 +63,9 @@ jobs:
           EOF
 
           # Transfer .env file to SSH_HOST_2
-          scp -o StrictHostKeyChecking=no .env ubuntu@${{ secrets.SSH_HOST_2 }}:/home/ubuntu/.env
+          scp -o StrictHostKeyChecking=no .env ubuntu@${IPs[1]}:/home/ubuntu/.env
 
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SSH_HOST_2 }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ubuntu@${IPs[1]} << 'EOF'
           sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
           sudo docker stop quotes-app || true
           sudo docker rm quotes-app || true          
