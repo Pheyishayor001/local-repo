@@ -53,13 +53,13 @@ jobs:
           second_server="${IPs[1]}"
       
           echo "Deploying to first server: $first_server"
-          ssh -o StrictHostKeyChecking=no ubuntu@$first_server << 'EOF'
-            sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+          ssh -o StrictHostKeyChecking=no ubuntu@$first_server <<EOF
+            sudo docker pull ${DOCKER_HUB_USERNAME}/fastapi-app:latest
             sudo docker stop fastapi-app || true
             sudo docker rm fastapi-app || true
-            sudo docker kill $(sudo docker ps -q --filter "publish=8000") || true
-            sudo docker run --env-file /home/ubuntu/.env -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
-          EOF
+            sudo docker kill \$(sudo docker ps -q --filter "publish=8000") || true
+            sudo docker run --env-file /home/ubuntu/.env -d --name fastapi-app -p 8000:8000 ${DOCKER_HUB_USERNAME}/fastapi-app:latest
+            EOF
       
           echo "Waiting for service to start..."
           sleep 10  # Give some time for the service to start
@@ -68,13 +68,13 @@ jobs:
           if curl -f http://$first_server:8000/health; then
             echo "Health check passed! Proceeding to second server: $second_server"
             
-            ssh -o StrictHostKeyChecking=no ubuntu@$second_server << 'EOF'
-              sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+            ssh -o StrictHostKeyChecking=no ubuntu@$second_server <<EOF
+              sudo docker pull ${DOCKER_HUB_USERNAME}/fastapi-app:latest
               sudo docker stop fastapi-app || true
               sudo docker rm fastapi-app || true
-              sudo docker kill $(sudo docker ps -q --filter "publish=8000") || true
-              sudo docker run --env-file /home/ubuntu/.env -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
-            EOF
+              sudo docker kill \$(sudo docker ps -q --filter "publish=8000") || true
+              sudo docker run --env-file /home/ubuntu/.env -d --name fastapi-app -p 8000:8000 ${DOCKER_HUB_USERNAME}/fastapi-app:latest
+              EOF
           else
             echo "Health check failed! Skipping deployment on second server."
             exit 1
