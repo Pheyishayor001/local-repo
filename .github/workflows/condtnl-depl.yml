@@ -45,35 +45,70 @@ jobs:
          ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
          echo "${{ secrets.DOT_ENV }}" > .env
 
-      - name: Deploy to Dev server procedurally        
-        run: |
-          IFS=',' read -r -a IPs <<< "${{ secrets.SSH_HOST }}"  # Split IPs into an array
-      
-          first_server="${IPs[0]}"
-          second_server="${IPs[1]}"
-      
-          echo "Deploying to first server: $first_server"
-          ssh -o StrictHostKeyChecking=no ubuntu@$first_server << 'EOF'
-            sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
-            sudo docker stop quotes-app || true
-            sudo docker rm -f quotes-app || true            
-            sudo docker run --env-file /home/ubuntu/.env -d --name quotes-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
+         - name: Deploy to Dev server procedurally        
+            run: |
+              IFS=',' read -r -a IPs <<< "${{ secrets.SSH_HOST }}"  # Split IPs into an array
+          
+              first_server="${IPs[0]}"
+              second_server="${IPs[1]}"
+          
+              echo "Deploying to first server: $first_server"
+              ssh -o StrictHostKeyChecking=no ubuntu@$first_server <<EOF
+          sudo docker pull ${DOCKER_HUB_USERNAME}/quotes-app:latest
+          sudo docker stop quotes-app || true
+          sudo docker rm -f quotes-app || true            
+          sudo docker run --env-file /home/ubuntu/.env -d --name quotes-app -p 8000:8000 ${DOCKER_HUB_USERNAME}/quotes-app:latest
           EOF
+          
+              echo "Waiting for service to start..."
+              sleep 10  # Give some time for the service to start
+          
+              echo "Checking health status on $first_server..."
+              if curl -f http://$first_server:8000/health; then
+                echo "Health check passed! Proceeding to second server: $second_server"
+          
+                ssh -o StrictHostKeyChecking=no ubuntu@$second_server <<EOF
+          sudo docker pull ${DOCKER_HUB_USERNAME}/quotes-app:latest
+          sudo docker stop quotes-app || true
+          sudo docker rm -f quotes-app || true              
+          sudo docker run --env-file /home/ubuntu/.env -d --name quotes-app -p 8000:8000 ${DOCKER_HUB_USERNAME}/quotes-app:latest
+          EOF
+          
+              else
+                echo "Health check failed! Skipping deployment on second server."
+                exit 1
+              fi
+
+
+      # - name: Deploy to Dev server procedurally        
+      #   run: |
+      #     IFS=',' read -r -a IPs <<< "${{ secrets.SSH_HOST }}"  # Split IPs into an array
       
-          echo "Waiting for service to start..."
-          sleep 10  # Give some time for the service to start
+      #     first_server="${IPs[0]}"
+      #     second_server="${IPs[1]}"
       
-          echo "Checking health status on $first_server..."
-          if curl -f http://$first_server:8000/health; then
-            echo "Health check passed! Proceeding to second server: $second_server"
+      #     echo "Deploying to first server: $first_server"
+      #     ssh -o StrictHostKeyChecking=no ubuntu@$first_server << 'EOF'
+      #       sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
+      #       sudo docker stop quotes-app || true
+      #       sudo docker rm -f quotes-app || true            
+      #       sudo docker run --env-file /home/ubuntu/.env -d --name quotes-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
+      #     EOF
+      
+      #     echo "Waiting for service to start..."
+      #     sleep 10  # Give some time for the service to start
+      
+      #     echo "Checking health status on $first_server..."
+      #     if curl -f http://$first_server:8000/health; then
+      #       echo "Health check passed! Proceeding to second server: $second_server"
             
-            ssh -o StrictHostKeyChecking=no ubuntu@$second_server << 'EOF'
-              sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
-              sudo docker stop quotes-app || true
-              sudo docker rm -f quotes-app || true              
-              sudo docker run --env-file /home/ubuntu/.env -d --name quotes-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
-            EOF
-          else
-            echo "Health check failed! Skipping deployment on second server."
-            exit 1
-          fi
+      #       ssh -o StrictHostKeyChecking=no ubuntu@$second_server << 'EOF'
+      #         sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
+      #         sudo docker stop quotes-app || true
+      #         sudo docker rm -f quotes-app || true              
+      #         sudo docker run --env-file /home/ubuntu/.env -d --name quotes-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
+      #       EOF
+      #     else
+      #       echo "Health check failed! Skipping deployment on second server."
+      #       exit 1
+      #     fi
