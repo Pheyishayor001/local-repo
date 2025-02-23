@@ -1,5 +1,5 @@
 #Network Variables
-region               = "us-east-1"
+region               = "us-east-1" 
 AZs                  = ["us-east-1a", "us-east-1b"]
 VPC_CIDR_block       = "10.0.0.0/16"
 public_subnet_cidrs  = ["10.0.1.0/24", "10.0.3.0/24"]
@@ -35,4 +35,4 @@ desired_cap = 1
 scale_up_by = 1
 scale_down_by = -1
 high_thresh = 70 # %
-low_thresh = 30 
+low_thresh = 30  # %
