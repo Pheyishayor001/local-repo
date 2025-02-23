@@ -1,0 +1,79 @@
+name: deploy
+
+on:
+  # workflow_dispatch:
+    push:
+      branches:
+        - solution
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker images
+        run: | 
+          docker build -t quotes-app:latest .
+
+      - name: "Tag Docker Images"
+        run: |
+         docker tag quotes-app:latest ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3 
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      - name: "Push to Docker Hub"
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/quotes-app:latest
+
+      - name: Add SSH private key
+        run: |
+         mkdir -p ~/.ssh
+         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+         chmod 600 ~/.ssh/id_rsa
+
+      - name: Add SSH known hosts 
+        run: |
+         ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+         echo "${{ secrets.DOT_ENV }}" > .env
+
+      - name: Deploy to Dev server procedurally        
+        run: |
+          IFS=',' read -r -a IPs <<< "${{ secrets.IP }}"  # Split IPs into an array
+      
+          first_server="${IPs[0]}"
+          second_server="${IPs[1]}"
+      
+          echo "Deploying to first server: $first_server"
+          ssh -o StrictHostKeyChecking=no ubuntu@$first_server << 'EOF'
+            sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+            sudo docker stop fastapi-app || true
+            sudo docker rm fastapi-app || true
+            sudo docker run --env-file /home/ubuntu/.env -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+          EOF
+      
+          echo "Waiting for service to start..."
+          sleep 10  # Give some time for the service to start
+      
+          echo "Checking health status on $first_server..."
+          if curl -f http://$first_server:8000/health; then
+            echo "Health check passed! Proceeding to second server: $second_server"
+            
+            ssh -o StrictHostKeyChecking=no ubuntu@$second_server << 'EOF'
+              sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+              sudo docker stop fastapi-app || true
+              sudo docker rm fastapi-app || true
+              sudo docker run --env-file /home/ubuntu/.env -d --name fastapi-app -p 8000:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app:latest
+            EOF
+          else
+            echo "Health check failed! Skipping deployment on second server."
+            exit 1
+          fi
