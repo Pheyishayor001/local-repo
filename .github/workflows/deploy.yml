@@ -49,7 +49,7 @@ jobs:
         
         run: | 
           # split the IP  at the , and store them into var: IPs.
-          IPs=(${${{ secrets.IP//,/ }}})
+          IPs=(${secrets.IP//,/ })
 
           # Transfer .env file to SSH_HOST_1
           scp -o StrictHostKeyChecking=no .env ubuntu@${IPs[0]}:/home/ubuntu/.env
